@@ -29,6 +29,6 @@ class ProcessTable(tk.Frame):
                 "id": values[0],
                 "arrival_time": int(values[1]),
                 "burst_time": int(values[2]),
-                "priority": int(values[3]) if len(values) > 3 else 0
+                #"priority": int(values[3]) if len(values) > 3 else 0
             })
         return processes, 2  # Default quantum

@@ -1,12 +1,18 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import random
+from scheduler.fcfs import fcfs
+from scheduler.round_robin import round_robin
+from scheduler.spn import spn
+from scheduler.srtn import srtn
+from scheduler.priority import priority_scheduling
+from ui.gantt_chart import generate_gantt_chart , display_queue
 
 class SchedulerApp:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("CPU Scheduling Simulator")
-        self.root.geometry("700x500")
+        self.root.geometry("700x600")
         self.process_list = []
         self.colors = ["#3498db", "#e74c3c", "#2ecc71", "#f1c40f", "#9b59b6", "#1abc9c"]
         self.create_widgets()
@@ -36,6 +42,17 @@ class SchedulerApp:
         self.burst_entry.grid(row=0, column=5)
         
         tk.Button(self.root, text="Add Process", command=self.add_process).pack(pady=5)
+        
+        self.algorithm_choice = tk.StringVar()
+        self.algorithm_choice.set("FCFS")
+        
+        algo_frame = tk.Frame(self.root)
+        algo_frame.pack()
+        
+        algorithms = ["FCFS", "Round Robin", "SPN", "SRTN", "Priority"]
+        for algo in algorithms:
+            tk.Radiobutton(algo_frame, text=algo, variable=self.algorithm_choice, value=algo).pack(side=tk.LEFT)
+        
         tk.Button(self.root, text="Run Scheduler", command=self.run_scheduler).pack(pady=5)
         
         self.canvas = tk.Canvas(self.root, width=600, height=100, bg="white")
@@ -47,7 +64,7 @@ class SchedulerApp:
         burst = self.burst_entry.get()
         
         if not pid.isdigit() or not arrival.isdigit() or not burst.isdigit():
-            messagebox.showerror("Input Error", "PID, Arrival Time, and Burst Time must be numbers")
+            messagebox.showerror("Input Error", "All fields must be numbers")
             return
         
         self.table.insert("", "end", values=(pid, arrival, burst))
@@ -60,20 +77,32 @@ class SchedulerApp:
         self.pid_entry.delete(0, tk.END)
         self.arrival_entry.delete(0, tk.END)
         self.burst_entry.delete(0, tk.END)
+        #self.priority_entry.delete(0, tk.END)
     
     def run_scheduler(self):
-        self.process_list.sort(key=lambda x: x["arrival_time"])  # Simple FCFS Scheduling
-        self.display_queue()
-    
-    def display_queue(self):
-        self.canvas.delete("all")
-        x_offset = 10
-        for process in self.process_list:
-            color = random.choice(self.colors)
-            self.canvas.create_rectangle(x_offset, 20, x_offset + (process["burst_time"] * 20), 80, fill=color, outline="black")
-            self.canvas.create_text(x_offset + 20, 50, text=f"P{process['pid']}", fill="white")
-            x_offset += (process["burst_time"] * 20) + 5  # Space between blocks
-    
+        algorithm = self.algorithm_choice.get()
+        
+        if not self.process_list:
+            messagebox.showerror("Error", "No processes added!")
+            return
+        
+        if algorithm == "FCFS":
+            schedule = fcfs(self.process_list)
+        elif algorithm == "Round Robin":
+            schedule = round_robin(self.process_list, time_quantum=2)
+        elif algorithm == "SPN":
+            schedule = spn(self.process_list)
+        elif algorithm == "SRTN":
+            schedule = srtn(self.process_list)
+        elif algorithm == "Priority":
+            schedule = priority_scheduling(self.process_list)
+        else:
+            messagebox.showerror("Error", "Invalid Algorithm Selected")
+            return
+        
+        generate_gantt_chart(schedule, algorithm)
+        display_queue(self)
+
     def run(self):
         self.root.mainloop()
 
