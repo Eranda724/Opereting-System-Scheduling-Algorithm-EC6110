@@ -95,7 +95,7 @@ class SchedulerApp:
         if algorithm == "FCFS":
             schedule = fcfs(self.process_list)
         elif algorithm == "Round Robin":
-            schedule = round_robin(self.process_list, time_quantum=2)
+            schedule = round_robin(self.process_list, time_quantum=1)
         elif algorithm == "SPN":
             schedule = spn(self.process_list)
         elif algorithm == "SRTN":
