@@ -20,8 +20,8 @@ class SchedulerApp:
     def create_widgets(self):
         tk.Label(self.root, text="CPU Scheduling Simulator", font=("Arial", 14)).pack()
         
-        self.table = ttk.Treeview(self.root, columns=("PID", "Arrival Time", "Burst Time"), show="headings")
-        for col in ("PID", "Arrival Time", "Burst Time"):
+        self.table = ttk.Treeview(self.root, columns=("PID", "Arrival Time", "Burst Time",  "Priority"), show="headings")
+        for col in ("PID", "Arrival Time", "Burst Time", "Priority"):
             self.table.heading(col, text=col)
             self.table.column(col, width=100)
         self.table.pack(pady=10)
@@ -36,10 +36,14 @@ class SchedulerApp:
         tk.Label(entry_frame, text="Arrival Time:").grid(row=0, column=2)
         self.arrival_entry = ttk.Entry(entry_frame)
         self.arrival_entry.grid(row=0, column=3)
-        
+
         tk.Label(entry_frame, text="Burst Time:").grid(row=0, column=4)
         self.burst_entry = ttk.Entry(entry_frame)
         self.burst_entry.grid(row=0, column=5)
+        
+        tk.Label(entry_frame, text="Priority:").grid(row=0, column=6)
+        self.priority_entry = ttk.Entry(entry_frame)
+        self.priority_entry.grid(row=0, column=7)
         
         tk.Button(self.root, text="Add Process", command=self.add_process).pack(pady=5)
         
@@ -55,29 +59,31 @@ class SchedulerApp:
         
         tk.Button(self.root, text="Run Scheduler", command=self.run_scheduler).pack(pady=5)
         
-        self.canvas = tk.Canvas(self.root, width=600, height=100, bg="white")
-        self.canvas.pack(pady=20)
+        # self.canvas = tk.Canvas(self.root, width=600, height=100, bg="white")
+        # self.canvas.pack(pady=20)
         
     def add_process(self):
         pid = self.pid_entry.get()
         arrival = self.arrival_entry.get()
         burst = self.burst_entry.get()
+        priority = self.priority_entry.get()
         
         if not pid.isdigit() or not arrival.isdigit() or not burst.isdigit():
             messagebox.showerror("Input Error", "All fields must be numbers")
             return
         
-        self.table.insert("", "end", values=(pid, arrival, burst))
+        self.table.insert("", "end", values=(pid, arrival, burst, priority))
         self.process_list.append({
             "pid": int(pid),
             "arrival_time": int(arrival),
-            "burst_time": int(burst)
+            "burst_time": int(burst),
+            "priority": int(priority)
         })
         
         self.pid_entry.delete(0, tk.END)
         self.arrival_entry.delete(0, tk.END)
         self.burst_entry.delete(0, tk.END)
-        #self.priority_entry.delete(0, tk.END)
+        self.priority_entry.delete(0, tk.END)
     
     def run_scheduler(self):
         algorithm = self.algorithm_choice.get()
@@ -101,7 +107,7 @@ class SchedulerApp:
             return
         
         generate_gantt_chart(schedule, algorithm)
-        display_queue(self)
+        # display_queue(self)
 
     def run(self):
         self.root.mainloop()

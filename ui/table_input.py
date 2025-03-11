@@ -17,7 +17,7 @@ class ProcessTable(tk.Frame):
         self.add_button.pack()
 
     def add_row(self):
-        self.table.insert("", "end", values=("", "", "", ""))
+        self.table.insert("", "end", values=("", "", "", "", ""))
 
     def get_input_data(self):
         processes = []
@@ -29,6 +29,6 @@ class ProcessTable(tk.Frame):
                 "id": values[0],
                 "arrival_time": int(values[1]),
                 "burst_time": int(values[2]),
-                #"priority": int(values[3]) if len(values) > 3 else 0
+                "priority": int(values[3]) 
             })
-        return processes, 2  # Default quantum
+        return processes, 1  # Default quantum
